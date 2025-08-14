@@ -1,0 +1,82 @@
+
+[2025-08-13 17:23:29]
+📜 Executing Code:
+import pandas as pd
+import os
+import io
+
+# Define paths
+output_dir = "uploads/9bc63933-87cc-446a-9e3c-a1b5cf5e3fa0"
+question_file_path = os.path.join(output_dir, "question.txt")
+data_csv_path = os.path.join(output_dir, "data.csv")
+metadata_txt_path = os.path.join(output_dir, "metadata.txt")
+
+# Create the output directory if it doesn't exist
+os.makedirs(output_dir, exist_ok=True)
+
+# Read the raw data from question.txt
+try:
+    with open(question_file_path, "r", encoding="utf-8") as f:
+        question_content = f.read()
+except FileNotFoundError:
+    question_content = ""  # Handle case where file might not exist
+
+# Create a DataFrame from the content
+df = pd.DataFrame({"content": [question_content]})
+
+# Save the dataset to data.csv
+df.to_csv(data_csv_path, index=False)
+
+# Generate metadata.txt
+with open(metadata_txt_path, "w", encoding="utf-8") as f:
+    f.write("Output of df.info():\n")
+    buffer = io.StringIO()
+    df.info(buf=buffer)
+    f.write(buffer.getvalue())
+    f.write("\n\nColumn names:\n")
+    f.write(str(df.columns.tolist()))
+    f.write("\n\nFirst few rows (df.head()):\n")
+    f.write(df.head().to_string())
+    f.write("\n\nANSWER_FORMAT:\nJSON")
+
+----------------------------------------
+
+[2025-08-13 17:23:30]
+✅ Code executed successfully after installing libraries.
+----------------------------------------
+
+[2025-08-13 17:23:40]
+📜 Executing Code:
+import json
+import os
+
+# The questions the user is asking are directly provided in the 'Question:' section.
+# Extract these main questions.
+main_questions = [
+    "Generate Python 3 code that loads, scrapes, or reads the raw data needed to answer the user's question.",
+    "List all external Python libraries that need to be installed.",
+    "Extract the main questions the user is asking (without answering them).",
+]
+
+# Construct the result dictionary based on the implicit structure derived from ANSWER_FORMAT: JSON
+# and the example for ANSWER_FORMAT: NONE, ensuring the extracted questions are placed in the 'answer' field.
+result_data = {"answer": main_questions, "images": []}
+
+# Define the output directory and file path
+output_dir = "uploads/9bc63933-87cc-446a-9e3c-a1b5cf5e3fa0"
+output_file_path = os.path.join(output_dir, "result.json")
+
+# Create the directory if it does not exist
+os.makedirs(output_dir, exist_ok=True)
+
+# Save the result to a JSON file
+with open(output_file_path, "w") as f:
+    json.dump(result_data, f, indent=2)
+
+print(f"Result saved to {output_file_path}")
+
+----------------------------------------
+
+[2025-08-13 17:23:40]
+✅ Code executed successfully after installing libraries.
+----------------------------------------

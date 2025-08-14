@@ -1,0 +1,16 @@
+2025-08-13 17:44:35,572 [INFO] Step-1: Folder created: uploads/ed7f9553-caaa-4c4b-86c8-f360a87e5a73
+2025-08-13 17:44:35,575 [INFO] Step-2: File sent {'question.txt': 'uploads/ed7f9553-caaa-4c4b-86c8-f360a87e5a73/question.txt'}
+2025-08-13 17:44:35,575 [INFO] Step-3: Getting scrap code and metadata from llm. Tries count = 0
+2025-08-13 17:45:00,532 [INFO] Step-3: Response from scrapping: Return as a base-64 encoded data URI, "data:image/png;base64,iVBORw0KG..." under 100,000 bytes.'], 'comment': 'Step-3: Getting scrap code and metadata from llm. Tries count = %d 0'}
+2025-08-13 17:45:03,104 [INFO] Step-4: Execution result of the scrape code: File "/home/charmika/TDS_project2/task_engine.py", line 26, in execute_code exec(code, exec_globals) File "<string>", line 26, in <module> ValueError: Could not find the expected table on the Wikipedia page.
+2025-08-13 17:45:03,104 [ERROR] Step-4: Error occured while scrapping. Tries count = 0
+2025-08-13 17:45:29,446 [ERROR] Step-4: error occured while reading json. Invalid \escape: line 2 column 1774 (char 1775)
+2025-08-13 17:45:29,446 [INFO] Step-3: Response from scrapping: Return as a base-64 encoded data URI, "data:image/png;base64,iVBORw0KG..." under 100,000 bytes.'], 'comment': 'Step-3: Getting scrap code and metadata from llm. Tries count = %d 0'}
+2025-08-13 17:45:32,810 [INFO] Step-4: Execution result of the scrape code: File "/home/charmika/TDS_project2/task_engine.py", line 26, in execute_code exec(code, exec_globals) File "<string>", line 26, in <module> ValueError: Could not find the expected table on the Wikipedia page.
+2025-08-13 17:45:32,811 [ERROR] Step-4: Error occured while scrapping. Tries count = 1
+2025-08-13 17:46:04,020 [INFO] Step-3: Response from scrapping: scatterplot of Rank and Peak along with a dotted red regression line through it.'], 'comment': 'Step-4: Error occured while scrapping. Tries count = %d, 1'}
+2025-08-13 17:46:08,097 [INFO] Step-4: Execution result of the scrape code: exec(code, exec_globals) File "<string>", line 33, in <module> ValueError: Could not find the expected table on the Wikipedia page with 'Film' and 'Worldwide gross' columns.
+2025-08-13 17:46:08,097 [ERROR] Step-4: Error occured while scrapping. Tries count = 2
+2025-08-13 17:51:04,443 [INFO] Step-3: Response from scrapping: line through it. Return as a base-64 encoded data URI, "data:image/png;base64,iVBORw0KG..." under 100,000 bytes.'], 'comment': 'Step-4: Error occured while scrapping. Tries count = %d, 2'}
+2025-08-13 17:46:34,320 [INFO] Step-4: Execution result of the scrape code: 48, in run_python_code execute_code() File "/home/charmika/TDS_project2/task_engine.py", line 26, in execute_code exec(code, exec_globals) File "<string>", line 31, in <module> AttributeError: 'int' object has no attribute 'lower'
+2025-08-13 17:46:34,321 [ERROR] error occured while scrapping.

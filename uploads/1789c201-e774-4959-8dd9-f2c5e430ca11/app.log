@@ -1,0 +1,10 @@
+2025-08-13 17:23:49,354 [INFO] Step-1: Folder created: uploads/1789c201-e774-4959-8dd9-f2c5e430ca11
+2025-08-13 17:23:49,359 [INFO] Step-2: File sent {'question.txt': 'uploads/1789c201-e774-4959-8dd9-f2c5e430ca11/question.txt'}
+2025-08-13 17:23:49,359 [INFO] Step-3: Getting scrap code and metadata from llm. Tries count = 0
+2025-08-13 17:24:17,121 [INFO] Step-3: Response from scrapping: file\nwith open(metadata_txt_path, \'w\', encoding=\'utf-8\') as f:\n f.write("\\n".join(metadata_content))\n', 'libraries': ['pandas'], 'questions': [], 'comment': 'Step-3: Getting scrap code and metadata from llm. Tries count = %d 0'}
+2025-08-13 17:24:17,697 [INFO] Step-4: Execution result of the scrape code: ✅ Code executed successfully after installing libraries.
+2025-08-13 17:24:17,697 [INFO] Step-5: Getting execution code from llm. Tries count = 0
+2025-08-13 17:24:24,446 [INFO] Step-5: Response from llm: generated.", "images": [] } output_dir = 'uploads/1789c201-e774-4959-8dd9-f2c5e430ca11' os.makedirs(output_dir, exist_ok=True) output_file_path = os.path.join(output_dir, 'result.json') with open(output_file_path, 'w') as f: json.dump(result_data, f, indent=2) print(f"Result saved to {output_file_path}")
+2025-08-13 17:24:24,446 [INFO] Step-6: Executing final code. Tries count = 0
+2025-08-13 17:24:24,451 [INFO] Step-6: Executing final code result: ✅ Code executed successfully after installing libraries.
+2025-08-13 17:24:24,452 [INFO] Step-7: send result back

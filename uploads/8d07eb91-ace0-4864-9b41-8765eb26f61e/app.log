@@ -1,0 +1,16 @@
+2025-08-13 17:42:04,298 [INFO] Step-1: Folder created: uploads/8d07eb91-ace0-4864-9b41-8765eb26f61e
+2025-08-13 17:42:04,299 [INFO] Step-2: File sent {'question.txt': 'uploads/8d07eb91-ace0-4864-9b41-8765eb26f61e/question.txt'}
+2025-08-13 17:42:04,299 [INFO] Step-3: Getting scrap code and metadata from llm. Tries count = 0
+2025-08-13 17:42:50,086 [INFO] Step-3: Response from scrapping: Return as a base-64 encoded data URI, "data:image/png;base64,iVBORw0..." under 100,000 bytes.'], 'comment': 'Step-3: Getting scrap code and metadata from llm. Tries count = %d 0'}
+2025-08-13 17:42:53,402 [INFO] Step-4: Execution result of the scrape code: 26, in execute_code exec(code, exec_globals) File "<string>", line 35, in <module> ValueError: Could not find the 'Timeline of highest-grossing films' table on the Wikipedia page.
+2025-08-13 17:42:53,402 [ERROR] Step-4: Error occured while scrapping. Tries count = 0
+2025-08-13 17:43:19,913 [INFO] Step-3: Response from scrapping: line through it. Return as a base-64 encoded data URI, "data:image/png;base64,iVBORw0K..." under 100,000 bytes.'], 'comment': 'Step-4: Error occured while scrapping. Tries count = %d, 0'}
+2025-08-13 17:43:22,556 [INFO] Step-4: Execution result of the scrape code: 48, in run_python_code execute_code() File "/home/charmika/TDS_project2/task_engine.py", line 26, in execute_code exec(code, exec_globals) File "<string>", line 30, in <module> AttributeError: 'int' object has no attribute 'split'
+2025-08-13 17:43:22,557 [ERROR] Step-4: Error occured while scrapping. Tries count = 1
+2025-08-13 17:43:51,126 [INFO] Step-3: Response from scrapping: line through it. Return as a base-64 encoded data URI, "data:image/png;base64,iVBORw0K..." under 100,000 bytes.'], 'comment': 'Step-4: Error occured while scrapping. Tries count = %d, 1'}
+2025-08-13 17:43:53,533 [INFO] Step-4: Execution result of the scrape code: ^^^^^^^^^^^^^^^^^^^^ File "/home/charmika/TDS_project2/venv/lib/python3.12/site-packages/pandas/core/strings/accessor.py", line 248, in _validate raise AttributeError("Can only use .str accessor with string values!") AttributeError: Can only use .str accessor with string values!
+2025-08-13 17:43:53,533 [ERROR] Step-4: Error occured while scrapping. Tries count = 2
+2025-08-13 17:44:23,496 [ERROR] Step-4: error occured while reading json. Invalid \escape: line 2 column 1432 (char 1433)
+2025-08-13 17:44:23,496 [INFO] Step-3: Response from scrapping: line through it. Return as a base-64 encoded data URI, "data:image/png;base64,iVBORw0K..." under 100,000 bytes.'], 'comment': 'Step-4: Error occured while scrapping. Tries count = %d, 1'}
+2025-08-13 17:44:26,596 [INFO] Step-4: Execution result of the scrape code: ^^^^^^^^^^^^^^^^^^^^ File "/home/charmika/TDS_project2/venv/lib/python3.12/site-packages/pandas/core/strings/accessor.py", line 248, in _validate raise AttributeError("Can only use .str accessor with string values!") AttributeError: Can only use .str accessor with string values!
+2025-08-13 17:44:26,596 [ERROR] error occured while scrapping.

@@ -1,0 +1,12 @@
+{
+    "code": "import pandas as pd\nimport os\nimport io\n\n# Define paths\noutput_dir = 'uploads/9bc63933-87cc-446a-9e3c-a1b5cf5e3fa0'\nquestion_file_path = os.path.join(output_dir, 'question.txt')\ndata_csv_path = os.path.join(output_dir, 'data.csv')\nmetadata_txt_path = os.path.join(output_dir, 'metadata.txt')\n\n# Create the output directory if it doesn't exist\nos.makedirs(output_dir, exist_ok=True)\n\n# Read the raw data from question.txt\ntry:\n    with open(question_file_path, 'r', encoding='utf-8') as f:\n        question_content = f.read()\nexcept FileNotFoundError:\n    question_content = \"\" # Handle case where file might not exist\n\n# Create a DataFrame from the content\ndf = pd.DataFrame({'content': [question_content]})\n\n# Save the dataset to data.csv\ndf.to_csv(data_csv_path, index=False)\n\n# Generate metadata.txt\nwith open(metadata_txt_path, 'w', encoding='utf-8') as f:\n    f.write(\"Output of df.info():\\n\")\n    buffer = io.StringIO()\n    df.info(buf=buffer)\n    f.write(buffer.getvalue())\n    f.write(\"\\n\\nColumn names:\\n\")\n    f.write(str(df.columns.tolist()))\n    f.write(\"\\n\\nFirst few rows (df.head()):\\n\")\n    f.write(df.head().to_string())\n    f.write(\"\\n\\nANSWER_FORMAT:\\nJSON\")",
+    "libraries": [
+        "pandas"
+    ],
+    "questions": [
+        "Generate Python 3 code that loads, scrapes, or reads the raw data needed to answer the user's question.",
+        "List all external Python libraries that need to be installed.",
+        "Extract the main questions the user is asking (without answering them)."
+    ],
+    "comment": "Step-3: Getting scrap code and metadata from llm. Tries count = %d 0"
+}

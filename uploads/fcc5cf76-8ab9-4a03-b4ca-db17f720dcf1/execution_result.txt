@@ -1,0 +1,605 @@
+
+[2025-08-13 17:51:34]
+📜 Executing Code:
+import pandas as pd
+import requests
+import os
+import re
+import io
+
+# Define paths
+output_dir = "uploads/fcc5cf76-8ab9-4a03-b4ca-db17f720dcf1"
+data_path = os.path.join(output_dir, "data.csv")
+metadata_path = os.path.join(output_dir, "metadata.txt")
+
+# Create directory if it doesn't exist
+os.makedirs(output_dir, exist_ok=True)
+
+# URL to scrape
+url = "https://en.wikipedia.org/wiki/List_of_highest-grossing_films"
+
+# Scrape tables
+response = requests.get(url)
+tables = pd.read_html(response.text)
+
+# Identify the correct table: "List of highest-grossing films"
+df = None
+found_table = False
+for table in tables:
+    # Normalize column names to lowercase and remove non-alphanumeric for matching
+    normalized_cols = {re.sub(r"[^a-z0-9]", "", col.lower()) for col in table.columns}
+
+    # Check for essential columns based on content
+    if all(
+        col_part in normalized_cols for col_part in ["rank", "film", "worldwidegross"]
+    ):
+        if any(
+            col_part.startswith("year") or col_part.startswith("release")
+            for col_part in normalized_cols
+        ):
+            df = table
+            # Rename columns for consistency
+            col_mapping = {}
+            for current_col in table.columns:
+                normalized_current_col = re.sub(r"[^a-z0-9]", "", current_col.lower())
+                if normalized_current_col == "rank":
+                    col_mapping[current_col] = "Rank"
+                elif normalized_current_col == "film":
+                    col_mapping[current_col] = "Film"
+                elif normalized_current_col == "worldwidegross":
+                    col_mapping[current_col] = "Worldwide gross"
+                elif normalized_current_col.startswith(
+                    "year"
+                ) or normalized_current_col.startswith("release"):
+                    col_mapping[current_col] = "Year"
+
+            df = df.rename(columns=col_mapping)
+            # Ensure all target columns exist after renaming
+            if all(
+                col in df.columns for col in ["Rank", "Film", "Worldwide gross", "Year"]
+            ):
+                found_table = True
+                break
+
+if not found_table:
+    raise ValueError(
+        "Could not find the 'List of highest-grossing films' table with expected columns."
+    )
+
+# Data Cleaning
+# Clean 'Worldwide gross' column
+df["Worldwide gross"] = df["Worldwide gross"].astype(str)
+df["Worldwide gross"] = df["Worldwide gross"].apply(
+    lambda x: re.sub(r"\[.*?\]", "", x)
+)  # Remove references like [1]
+df["Worldwide gross"] = df["Worldwide gross"].apply(
+    lambda x: re.sub(r"\(.*?\)", "", x)
+)  # Remove content in parentheses
+df["Worldwide gross"] = df["Worldwide gross"].apply(
+    lambda x: re.sub(r"[$,]", "", x)
+)  # Remove '$' and ','
+df["Worldwide gross"] = pd.to_numeric(
+    df["Worldwide gross"], errors="coerce"
+)  # Convert to numeric, coerce errors
+
+# Clean 'Year' column
+df["Year"] = (
+    df["Year"].astype(str).str.extract(r"(\d{4})")[0]
+)  # Extract the first 4-digit year
+df["Year"] = pd.to_numeric(df["Year"], errors="coerce")  # Convert to numeric
+df.dropna(subset=["Year"], inplace=True)  # Drop rows where Year became NaN
+df["Year"] = df["Year"].astype(int)
+
+# Clean 'Rank' column
+df["Rank"] = (
+    df["Rank"].astype(str).apply(lambda x: re.sub(r"\[.*?\]", "", x))
+)  # Remove references
+df["Rank"] = pd.to_numeric(df["Rank"], errors="coerce")  # Coerce errors to NaN
+df.dropna(subset=["Rank"], inplace=True)  # Drop rows where Rank became NaN
+df["Rank"] = df["Rank"].astype(int)
+
+# Select only the relevant columns
+df = df[["Rank", "Film", "Worldwide gross", "Year"]]
+
+# Save the cleaned DataFrame to CSV
+df.to_csv(data_path, index=False)
+
+# Generate metadata
+with open(metadata_path, "w") as f:
+    f.write("Output of df.info():\n")
+    info_buffer = io.StringIO()
+    df.info(buf=info_buffer)
+    f.write(info_buffer.getvalue())
+
+    f.write("\n\nColumn names:\n")
+    f.write(str(df.columns.tolist()))
+    f.write("\n\nFirst few rows (df.head()):\n")
+    f.write(df.head().to_string())
+    f.write("\n\nANSWER_FORMAT: JSON array of strings containing the answer.")
+
+----------------------------------------
+
+[2025-08-13 17:51:35]
+❌ Error during code execution:
+Traceback (most recent call last):
+  File "/home/charmika/TDS_project2/task_engine.py", line 48, in run_python_code
+    execute_code()
+  File "/home/charmika/TDS_project2/task_engine.py", line 26, in execute_code
+    exec(code, exec_globals)
+  File "<string>", line 27, in <module>
+AttributeError: 'int' object has no attribute 'lower'
+
+----------------------------------------
+
+[2025-08-13 17:52:04]
+📜 Executing Code:
+import pandas as pd
+import requests
+import os
+import re
+import io
+
+# --- Setup Paths ---
+output_dir = "uploads/fcc5cf76-8ab9-4a03-b4ca-db17f720dcf1"
+output_csv_path = os.path.join(output_dir, "data.csv")
+metadata_path = os.path.join(output_dir, "metadata.txt")
+
+# Create output directory if it doesn't exist
+os.makedirs(output_dir, exist_ok=True)
+
+# --- Data Loading and Scraping ---
+url = "https://en.wikipedia.org/wiki/List_of_highest-grossing_films"
+
+# Use pandas to read HTML tables directly
+tables = pd.read_html(url)
+
+# Find the correct table by checking for expected columns
+df = None
+for temp_df in tables:
+    # Normalize column names for comparison
+    temp_df.columns = (
+        temp_df.columns.astype(str)
+        .str.lower()
+        .str.replace(r"\s+|[()\[\]]", "", regex=True)
+    )
+    if all(col in temp_df.columns for col in ["rank", "worldwidegross", "year"]):
+        df = temp_df
+        break
+
+if df is None:
+    raise ValueError(
+        "Could not find the highest-grossing films table on the Wikipedia page."
+    )
+
+# --- Data Cleaning ---
+# Standardize column names again after selection to remove potential footnotes like [A]
+df.columns = df.columns.astype(str).str.replace(r"\[.*?\]", "", regex=True).str.strip()
+df.columns = (
+    df.columns.str.replace(" ", "_")
+    .str.replace("(", "")
+    .str.replace(")", "")
+    .str.lower()
+)
+
+# Ensure 'rank' and 'peak' are numeric
+# Handle potential non-numeric characters like 'No. 1' or '—'
+df["rank"] = pd.to_numeric(
+    df["rank"].astype(str).str.replace(r"[^0-9]", "", regex=True), errors="coerce"
+)
+df["peak"] = pd.to_numeric(
+    df["peak"].astype(str).str.replace(r"[^0-9]", "", regex=True), errors="coerce"
+)
+
+
+# Clean 'worldwide_gross' column
+# Remove '$', ',', and any bracketed text like '[A]' or '[1]'
+# Convert to numeric (float)
+def clean_gross(gross_str):
+    if pd.isna(gross_str):
+        return None
+    gross_str = str(gross_str)
+    gross_str = re.sub(
+        r"\$[A-Za-z]?\s*", "", gross_str
+    )  # Remove '$' and optional currency code like '$US'
+    gross_str = gross_str.replace(",", "")
+    gross_str = re.sub(r"\[.*?\]", "", gross_str)  # Remove footnotes
+    try:
+        return float(gross_str)
+    except ValueError:
+        return None
+
+
+df["worldwide_gross"] = df["worldwide_gross"].apply(clean_gross)
+
+
+# Clean 'year' column
+# Some years might have ranges or text. Extract the first 4-digit number.
+def clean_year(year_val):
+    if pd.isna(year_val):
+        return None
+    year_str = str(year_val)
+    match = re.search(r"\b\d{4}\b", year_str)
+    if match:
+        return int(match.group(0))
+    return None
+
+
+df["year"] = df["year"].apply(clean_year)
+
+# Drop rows where critical columns (like worldwide_gross or year) are NaN after cleaning
+df.dropna(subset=["worldwide_gross", "year", "rank", "peak"], inplace=True)
+
+# Convert relevant columns to their final types
+df["rank"] = df["rank"].astype(int)
+df["peak"] = df["peak"].astype(int)
+df["year"] = df["year"].astype(int)
+
+# Sort by rank for consistency, as per Wikipedia table structure
+df = df.sort_values(by="rank").reset_index(drop=True)
+
+# --- Save Data ---
+df.to_csv(output_csv_path, index=False)
+
+# --- Generate Metadata ---
+metadata_content = []
+
+# df.info() output
+metadata_content.append("df.info():\n")
+buffer = io.StringIO()
+df.info(buf=buffer)
+metadata_content.append(buffer.getvalue())
+
+# Column names
+metadata_content.append("\nColumn Names:\n")
+metadata_content.append(", ".join(df.columns.tolist()))
+
+# df.head() output
+metadata_content.append("\n\nFirst Few Rows (df.head()):\n")
+metadata_content.append(df.head().to_string())
+
+# ANSWER_FORMAT block
+metadata_content.append("\n\nANSWER_FORMAT: JSON array of strings")
+
+with open(metadata_path, "w") as f:
+    f.write("\n".join(metadata_content))
+
+----------------------------------------
+
+[2025-08-13 17:52:05]
+❌ Error during code execution:
+Traceback (most recent call last):
+  File "/home/charmika/TDS_project2/venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'worldwide_gross'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/charmika/TDS_project2/task_engine.py", line 48, in run_python_code
+    execute_code()
+  File "/home/charmika/TDS_project2/task_engine.py", line 26, in execute_code
+    exec(code, exec_globals)
+  File "<string>", line 58, in <module>
+  File "/home/charmika/TDS_project2/venv/lib/python3.12/site-packages/pandas/core/frame.py", line 4107, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/charmika/TDS_project2/venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'worldwide_gross'
+
+----------------------------------------
+
+[2025-08-13 17:52:49]
+📜 Executing Code:
+import pandas as pd
+import requests
+import os
+import re
+
+# Define paths
+output_dir = "uploads/fcc5cf76-8ab9-4a03-b4ca-db17f720dcf1"
+data_path = os.path.join(output_dir, "data.csv")
+metadata_path = os.path.join(output_dir, "metadata.txt")
+
+# Create the output directory if it does not exist
+os.makedirs(output_dir, exist_ok=True)
+
+# URL of the Wikipedia page
+url = "https://en.wikipedia.org/wiki/List_of_highest-grossing_films"
+
+# Scrape the table
+try:
+    # pd.read_html can directly parse tables from a URL
+    # Use match to find the specific table containing 'Worldwide gross'
+    tables = pd.read_html(url, match="Worldwide gross")
+    # Assuming the main table is the first one found that matches 'Worldwide gross'
+    df = tables[0].copy()
+except Exception as e:
+    raise RuntimeError(f"Failed to scrape data from URL: {e}")
+
+# Clean column names
+# Remove footnotes like [N] from column headers and strip whitespace
+df.columns = [re.sub(r"\\[.*?\]", "", col).strip() for col in df.columns]
+
+# Standardize column names for easier access (e.g., 'Worldwide gross' to 'Worldwide_Gross')
+df.rename(columns={"Worldwide gross": "Worldwide_Gross"}, inplace=True)
+
+# Data Cleaning and Type Conversion
+# 1. 'Rank' column: Ensure it's numeric
+df["Rank"] = pd.to_numeric(df["Rank"], errors="coerce")
+
+# 2. 'Worldwide_Gross' column: Remove '$', ',', and footnotes, then convert to numeric
+# Values might be like "$2,923,706,026[1]"
+df["Worldwide_Gross"] = (
+    df["Worldwide_Gross"]
+    .astype(str)
+    .str.replace("$", "", regex=False)
+    .str.replace(",", "", regex=False)
+)
+df["Worldwide_Gross"] = df["Worldwide_Gross"].apply(
+    lambda x: re.sub(r"\\[.*?\]", "", x).strip()
+)
+df["Worldwide_Gross"] = pd.to_numeric(df["Worldwide_Gross"], errors="coerce")
+
+# 3. 'Year' column: Ensure it's numeric
+df["Year"] = pd.to_numeric(df["Year"], errors="coerce")
+
+# 4. 'Peak' column: Remove footnotes, convert to numeric
+# Values might be like "1[2]"
+df["Peak"] = df["Peak"].astype(str).apply(lambda x: re.sub(r"\\[.*?\]", "", x).strip())
+df["Peak"] = pd.to_numeric(df["Peak"], errors="coerce")
+
+# 5. 'Film' column: Remove footnotes from film titles if any
+df["Film"] = df["Film"].astype(str).apply(lambda x: re.sub(r"\\[.*?\]", "", x).strip())
+
+# Drop rows where essential columns are NaN after conversion (e.g., Rank, Worldwide_Gross, Year, Peak)
+df.dropna(subset=["Rank", "Worldwide_Gross", "Year", "Peak"], inplace=True)
+
+# Convert Rank, Year, Peak to integer type after dropping NaNs
+df["Rank"] = df["Rank"].astype(int)
+df["Year"] = df["Year"].astype(int)
+df["Peak"] = df["Peak"].astype(int)
+
+# Save the DataFrame to CSV
+df.to_csv(data_path, index=False)
+
+# Generate metadata.txt
+with open(metadata_path, "w") as f:
+    f.write("Output of df.info():\n")
+    df.info(buf=f)  # Write info to file buffer directly
+    f.write("\n\nColumn names:\n")
+    f.write(str(df.columns.tolist()))
+    f.write("\n\nFirst few rows (df.head()):\n")
+    f.write(df.head().to_string())  # Use to_string() for better formatting in text file
+    f.write("\n\nANSWER_FORMAT: JSON array of strings")
+
+----------------------------------------
+
+[2025-08-13 17:52:50]
+❌ Error during code execution:
+Traceback (most recent call last):
+  File "/home/charmika/TDS_project2/task_engine.py", line 48, in run_python_code
+    execute_code()
+  File "/home/charmika/TDS_project2/task_engine.py", line 26, in execute_code
+    exec(code, exec_globals)
+  File "<string>", line 29, in <module>
+  File "/usr/lib/python3.12/re/__init__.py", line 186, in sub
+    return _compile(pattern, flags).sub(repl, string, count)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/re/__init__.py", line 307, in _compile
+    p = _compiler.compile(pattern, flags)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/re/_compiler.py", line 745, in compile
+    p = _parser.parse(p, flags)
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/re/_parser.py", line 979, in parse
+    p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/re/_parser.py", line 460, in _parse_sub
+    itemsappend(_parse(source, state, verbose, nested + 1,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/re/_parser.py", line 568, in _parse
+    raise source.error("unterminated character set",
+re.error: unterminated character set at position 2
+
+----------------------------------------
+
+[2025-08-13 17:53:16]
+📜 Executing Code:
+import pandas as pd
+import requests
+from io import StringIO
+import os
+import re
+
+# Define output directory
+output_dir = "uploads/fcc5cf76-8ab9-4a03-b4ca-db17f720dcf1"
+os.makedirs(output_dir, exist_ok=True)
+
+# Define URL
+url = "https://en.wikipedia.org/wiki/List_of_highest-grossing_films"
+
+# Fetch HTML content
+response = requests.get(url)
+response.raise_for_status()  # Raise an exception for HTTP errors
+
+# Use pandas to read HTML tables
+tables = pd.read_html(response.text)
+
+df = None
+# Iterate through tables to find the one with 'Worldwide gross' and 'Year'
+# The main table is usually the first or second, and contains these key columns.
+for table in tables:
+    # Check for presence of key columns, making sure to consider variations in column names like footnotes
+    if (
+        any("Worldwide gross" in col for col in table.columns)
+        and any("Year" in col for col in table.columns)
+        and any("Title" in col for col in table.columns)
+    ):
+        df = table
+        break
+
+if df is None:
+    raise ValueError(
+        "Could not find the expected table on the Wikipedia page with 'Worldwide gross', 'Year', and 'Title' columns."
+    )
+
+# Clean column names by removing bracketed references (e.g., '[1]', '[a]')
+df.columns = df.columns.astype(str).str.replace(r"\[.*?\]", "", regex=True).str.strip()
+
+# Standardize column names if they contain partial matches
+# Find the actual column names after cleaning for 'Worldwide gross', 'Rank', 'Peak', 'Year'
+worldwide_gross_col = next(
+    (col for col in df.columns if "Worldwide gross" in col), None
+)
+year_col = next((col for col in df.columns if "Year" in col), None)
+rank_col = next((col for col in df.columns if "Rank" in col), None)
+peak_col = next((col for col in df.columns if "Peak" in col), None)
+
+# Data Cleaning and Type Conversion
+if worldwide_gross_col:
+    df.rename(columns={worldwide_gross_col: "Worldwide gross"}, inplace=True)
+    df["Worldwide gross"] = (
+        df["Worldwide gross"]
+        .astype(str)
+        .str.replace("$", "", regex=False)
+        .str.replace(",", "", regex=False)
+    )
+    df["Worldwide gross"] = (
+        df["Worldwide gross"].str.replace(r"\[.*?\]", "", regex=True).str.strip()
+    )
+    df["Worldwide gross"] = pd.to_numeric(df["Worldwide gross"], errors="coerce")
+
+if year_col:
+    df.rename(columns={year_col: "Year"}, inplace=True)
+    df["Year"] = (
+        df["Year"].astype(str).str.replace(r"\[.*?\]", "", regex=True).str.strip()
+    )
+    # Handle year ranges like '1999–2000' by taking the first year
+    df["Year"] = df["Year"].apply(lambda x: x.split("–")[0].strip() if "–" in x else x)
+    df["Year"] = pd.to_numeric(df["Year"], errors="coerce").astype(
+        "Int64"
+    )  # Use Int64 for nullable integer
+
+if rank_col:
+    df.rename(columns={rank_col: "Rank"}, inplace=True)
+    df["Rank"] = (
+        df["Rank"].astype(str).str.replace(r"\[.*?\]", "", regex=True).str.strip()
+    )
+    df["Rank"] = pd.to_numeric(df["Rank"], errors="coerce").astype("Int64")
+
+if peak_col:
+    df.rename(columns={peak_col: "Peak"}, inplace=True)
+    df["Peak"] = (
+        df["Peak"].astype(str).str.replace(r"\[.*?\]", "", regex=True).str.strip()
+    )
+    df["Peak"] = pd.to_numeric(df["Peak"], errors="coerce").astype("Int64")
+
+# Drop rows where essential numeric columns are NaN after cleaning
+df.dropna(subset=["Worldwide gross", "Year", "Rank", "Peak"], inplace=True)
+# Ensure Worldwide gross is positive
+df = df[df["Worldwide gross"] > 0]
+
+# Save the cleaned DataFrame to data.csv
+data_path = os.path.join(output_dir, "data.csv")
+df.to_csv(data_path, index=False)
+
+# Generate metadata.txt
+metadata_path = os.path.join(output_dir, "metadata.txt")
+
+with open(metadata_path, "w") as f:
+    f.write("Output of df.info():\n")
+    # Redirect df.info() to a string
+    buf = StringIO()
+    df.info(buf=buf)
+    f.write(buf.getvalue())
+    f.write("\n\nColumn names:\n")
+    f.write(str(df.columns.tolist()))
+    f.write("\n\nFirst few rows (df.head()):\n")
+    f.write(df.head().to_string())
+    f.write("\n\nANSWER_FORMAT: JSON\n")
+    f.write(f"\nSaved file: {data_path} - Highest-grossing films data\n")
+
+----------------------------------------
+
+[2025-08-13 17:53:17]
+✅ Code executed successfully after installing libraries.
+----------------------------------------
+
+[2025-08-13 17:53:41]
+📜 Executing Code:
+import pandas as pd
+import json
+import matplotlib.pyplot as plt
+import seaborn as sns
+import base64
+import io
+import numpy as np
+
+# Load the dataset
+df = pd.read_csv("uploads/fcc5cf76-8ab9-4a03-b4ca-db17f720dcf1/data.csv")
+
+# Question 1: How many $2 bn movies were released before 2000?
+two_bn_count = df[(df["Worldwide gross"] >= 2_000_000_000) & (df["Year"] < 2000)].shape[
+    0
+]
+
+# Question 2: Which is the earliest film that grossed over $1.5 bn?
+over_1_5_bn_films = df[df["Worldwide gross"] > 1_500_000_000].sort_values(
+    by=["Year", "Worldwide gross"], ascending=[True, False]
+)
+earliest_film_title = (
+    over_1_5_bn_films.iloc[0]["Title"]
+    if not over_1_5_bn_films.empty
+    else "No film found matching criteria"
+)
+
+# Question 3: What's the correlation between the Rank and Peak?
+correlation = df["Rank"].corr(df["Peak"])
+# Convert numpy float to Python float for JSON serialization, handle NaN
+correlation_value = float(correlation) if not pd.isna(correlation) else None
+
+# Question 4: Draw a scatterplot of Rank and Peak along with a dotted red regression line through it.
+# Generate the plot
+plt.figure(figsize=(8, 6))
+sns.regplot(x="Rank", y="Peak", data=df, line_kws={"color": "red", "linestyle": ":"})
+plt.title("Scatterplot of Rank vs. Peak with Regression Line")
+plt.xlabel("Rank")
+plt.ylabel("Peak")
+plt.grid(True)
+plt.tight_layout()  # Adjust layout to prevent labels from overlapping
+
+# Save plot to a BytesIO object and encode to base64
+buffer = io.BytesIO()
+plt.savefig(buffer, format="png")  # Default DPI is usually 100, good for small size
+buffer.seek(0)
+image_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+plt.close()  # Close the plot to free memory
+
+data_uri = f"data:image/png;base64,{image_base64}"
+
+# Construct the final JSON output
+result_json = {
+    "answer": {
+        "q1_2bn_movies_before_2000": two_bn_count,
+        "q2_earliest_1_5bn_film": earliest_film_title,
+        "q3_rank_peak_correlation": correlation_value,
+    },
+    "images": [data_uri],
+}
+
+# Save the result to the specified JSON file
+output_path = "uploads/fcc5cf76-8ab9-4a03-b4ca-db17f720dcf1/result.json"
+with open(output_path, "w") as f:
+    json.dump(result_json, f, indent=4)
+
+----------------------------------------
+
+[2025-08-13 17:53:41]
+✅ Code executed successfully after installing libraries.
+----------------------------------------
