@@ -1,0 +1,15 @@
+{
+    "code": "import os\nimport pandas as pd\nimport io\n\n# Define paths\noutput_dir = 'uploads/3f5f03b0-f041-49e0-835e-817eedf602f9'\ndata_path = os.path.join(output_dir, 'data.csv')\nmetadata_path = os.path.join(output_dir, 'metadata.txt')\n\n# Create directory if it doesn't exist\nos.makedirs(output_dir, exist_ok=True)\n\n# Scrape data\nurl = \"https://en.wikipedia.org/wiki/List_of_highest-grossing_films\"\ntables = pd.read_html(url)\n\n# The main table \"Highest-grossing films\" is typically the first one returned by read_html.\ndf = tables[0]\n\n# Clean column names by removing bracketed notes (e.g., [N])\ndf.columns = df.columns.map(lambda x: x.split('[')[0].strip())\n\n# Clean 'Worldwide gross' column for numerical conversion\n# Convert to string first to handle potential non-string types, then clean\nif 'Worldwide gross' in df.columns:\n    df['Worldwide gross'] = df['Worldwide gross'].astype(str).str.replace('$', '').str.replace(',', '').str.strip()\n    df['Worldwide gross'] = pd.to_numeric(df['Worldwide gross'], errors='coerce')\n\n# Save the DataFrame to data.csv\ndf.to_csv(data_path, index=False)\n\n# Prepare metadata\nmetadata_content = []\n\n# Capture df.info() output\nbuffer = io.StringIO()\ndf.info(buf=buffer)\nmetadata_content.append(\"df.info():\\n\" + buffer.getvalue())\n\n# Column names\nmetadata_content.append(\"\\nColumn names:\\n\" + \", \".join(df.columns.tolist()))\n\n# First few rows (df.head())\nmetadata_content.append(\"\\nFirst few rows (df.head()):\\n\" + df.head().to_string())\n\n# ANSWER_FORMAT block\nmetadata_content.append(\"\\nANSWER_FORMAT: JSON array of strings\")\n\n# Write metadata to metadata.txt\nwith open(metadata_path, 'w') as f:\n    f.write(\"\\n\".join(metadata_content))\n",
+    "libraries": [
+        "pandas",
+        "beautifulsoup4",
+        "requests"
+    ],
+    "questions": [
+        "How many $2 bn movies were released before 2000?",
+        "Which is the earliest film that grossed over $1.5 bn?",
+        "What's the correlation between the Rank and Peak?",
+        "Draw a scatterplot of Rank and Peak along with a dotted red regression line through it. Return as a base-64 encoded data URI, \"data:image/png;base664,iVBORw0KG...\" under 100,000 bytes."
+    ],
+    "comment": "Step-3: Getting scrap code and metadata from llm. Tries count = %d 0"
+}

@@ -137,4 +137,4 @@ echo -e "\nServer should be ready now."
 
 # ================= START NGROK (FOREGROUND) =================
 echo "Starting ngrok tunnel on port 8000..."
-$NGROK_BIN http --url=comic-musical-parakeet.ngrok-free.app 8000
+$NGROK_BIN http --url=cool-firmly-fly.ngrok-free.app 8000

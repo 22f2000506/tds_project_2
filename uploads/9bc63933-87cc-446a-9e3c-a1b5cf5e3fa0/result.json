@@ -1,8 +1,0 @@
-{
-  "answer": [
-    "Generate Python 3 code that loads, scrapes, or reads the raw data needed to answer the user's question.",
-    "List all external Python libraries that need to be installed.",
-    "Extract the main questions the user is asking (without answering them)."
-  ],
-  "images": []
-}
